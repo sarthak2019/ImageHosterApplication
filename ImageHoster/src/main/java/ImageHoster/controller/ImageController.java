@@ -45,9 +45,20 @@ public class ImageController {
     //Also now you need to add the tags of an image in the Model type object
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
-    @RequestMapping("/images/{title}")
-    public String showImage(@PathVariable("title") String title, Model model) {
-        Image image = imageService.getImageByTitle(title);
+    @RequestMapping("/images/{imageId}/{title}")
+    /* Modified the Request Mapping from @RequestMapping("/images/{title}") to @RequestMapping("/images/{imageId}/{title}"),
+    so that the view can be navigated to the correct image page by uniquely identifying the image by using its
+    id from the path variable imageId, if two or more images have the same title. */
+    public String showImage(@PathVariable("imageId") Integer imageId, @PathVariable("title") String title, Model model) {
+    /* Added the path variable imageId to the method parameters, so that the correct image can be fetched
+    from the database by uniquely identifying the image by getting its id from the path variable imageId,
+    if two or more images have the same title. */
+        Image image = imageService.getImage(imageId);
+        /* Called the method imageService.getImage(imageId), which fetches the image details from the
+        database by using the id of the image by passing the imageId as argument instead of
+        imageService.getImageByTitle(title) method, which fetches the image details from the database
+        by using the title of the image, so that the correct image can be feteched from the database by uniquely
+        identifying the image from the id of the image, if two or more images have the same title. */
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
         return "images/image";
