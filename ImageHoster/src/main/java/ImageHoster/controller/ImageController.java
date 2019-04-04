@@ -103,13 +103,49 @@ public class ImageController {
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
-    public String editImage(@RequestParam("imageId") Integer imageId, Model model) {
+    public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session) {
+    /* Added the object of HttpSession to the parameters of the method editImage(), so that the details of the logged
+    in user can be fetched from the object of HttpSession by using getAttribute() method on the object of HttpSession
+    and the id of the logged in user can be compared with the id of the owner of the image to check if the user who is
+    trying to edit the image is the owner of the image. */
         Image image = imageService.getImage(imageId);
-
-        String tags = convertTagsToString(image.getTags());
-        model.addAttribute("image", image);
-        model.addAttribute("tags", tags);
-        return "images/edit";
+        User user = (User) session.getAttribute("loggeduser");
+        /* Fetched the details of the user who is logged in from the object of HttpSession by using the getAttribute()
+        method, so that the id of the logged in user can be compared with the id of the owner of the image to check if
+        the user who is trying to edit the image is the owner of the image. */
+        User owner = image.getUser();
+        /* Fetched the owner of the image by calling getUser() method on the object of Image. */
+        String error = "Only the owner of the image can edit the image";
+        /* Created and assigned value to the string named error which will be assigned as the value of the model
+        attribute named editError. */
+        if (user.getId() != owner.getId()){
+        /* Compared if the id of the user who is trying to edit the image is equal to the id of the owner of the image. If
+        the id of the user who is trying to edit the image is not equal to the id of the owner of the image, then the view
+        will show the same image page with an attribute editError added to the model object, which will be used to display
+        the error message: Only the owner of the image can edit the image, if the non-owner of the image is trying to edit
+        the image. */
+            model.addAttribute("image", image);
+            model.addAttribute("tags", image.getTags());
+            model.addAttribute("editError", error);
+            /* Added an attribute with the name editError to the model object, which will be used to display the error
+            message: Only the owner of the image can edit the image, if the non-owner of the image is trying to edit
+            the image. */
+            return "images/image";
+            /* Used the return statement return "images/image";, so that the view will show the same image
+            page with an attribute named editError added to the model object which will be used to display the error
+            message: Only the owner of the image can edit the image, if the non-owner of the image is trying to edit the
+            image. */
+        }
+        else {
+        /* If the id of the user who is trying to edit the image is equal to the id of the owner of the image, then this
+        else block will be executed and the view will show the edit page, so that the user can edit the image. */
+            String tags = convertTagsToString(image.getTags());
+            model.addAttribute("image", image);
+            model.addAttribute("tags", tags);
+            return "images/edit";
+            /* Used the return statement return "images/edit";, so that the view will show the images/edit page so that
+            that the user can edit the image. */
+        }
     }
 
     //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
@@ -143,7 +179,13 @@ public class ImageController {
         updatedImage.setDate(new Date());
 
         imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getTitle();
+        return "redirect:/images/" + updatedImage.getId() + "/" + updatedImage.getTitle();
+        /* Modified the return statement to return "redirect:/images/" + updatedImage.getId() + "/" + updatedImage.getTitle();,
+        instead of return "redirect:/images/" + updatedImage.getTitle();, so that after the edited image gets saved
+        in the database, the Request Mapping @RequestMapping("/images/{imageId}/{title}") will be invoked in the controller and
+        the view will navigate to the correct image page by uniquely identifying the edited image by using its id
+        from the path variable imageId, if two or more images have the same title, because we are passing the id of the
+        image by using updatedImage.getId(). */
     }
 
 
@@ -151,10 +193,51 @@ public class ImageController {
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
-    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId) {
-        imageService.deleteImage(imageId);
-        return "redirect:/images";
+    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, Model model, HttpSession session) {
+    /* Added the object of HttpSession to the parameters of the method deleteImageSubmit(), so that the details of the
+    logged in user can be fetched from this session object by using getAttribute() method on the object of HttpSession
+    and the id of the logged in user can be compared with the id of the owner of the image to check if the user who is
+    trying to delete the image is the owner of the image. */
+        Image image = imageService.getImage(imageId);
+        /* Fetched the details of the image by using the id of the image */
+        User user = (User) session.getAttribute("loggeduser");
+        /* Fetched the details of the user who is logged in from the object of HttpSession by using the getAttribute()
+        method, so that the id of the logged in user can be compared with the id of the owner of the image to check if
+        the user who is trying to delete the image is the owner of the image. */
+        User owner = image.getUser();
+        /* Fetched the owner of the image by using getUser() method on image object */
+        String error = "Only the owner of the image can delete the image";
+        /* Created and assigned value to the string named error which will be assigned as the value of the model
+        attribute named deleteError. */
+        if (user.getId() != owner.getId()){
+        /* Compared if the id of the user who is trying to delete the image is equal to the id of the owner of the image. If
+        the id of the user who is trying to delete the image is not equal to the id of the owner of the image, then the view
+        will show the same image page with an attribute named deleteError added to the model object, which will be used to
+        display the error message: Only the owner of the image can delete the image, if the non-owner of the image is trying
+        to delete the image. */
+            model.addAttribute("image", image);
+            model.addAttribute("tags", image.getTags());
+            model.addAttribute("deleteError", error);
+            /* Added an attribute with the name deleteError to the model object, which will be used to display the error
+            message: Only the owner of the image can delete the image, if the non-owner of the image is trying to delete
+            the image. */
+            return "images/image";
+            /* Used the return statement return "images/image";, so that the view will show the same image
+            page with an attribute named deleteError added to the model object which will be used to display the
+            error message: Only the owner of the image can delete the image, if the non-owner of the image is
+            trying to delete the image. */
+        }
+        else {
+        /* If the id of the user who is trying to edit the image is equal to the id of the owner of the image, then this
+        else block will be executed and the view will be used to delete the image from the database. */
+            imageService.deleteImage(imageId);
+            return "redirect:/images";
+            /* Used the return statement return "redirect:/images";, so that the view will redirect to the images
+            page to display all the images after the particular image gets deleted from the database. */
+        }
+
     }
+
 
 
     //This method converts the image to Base64 format
