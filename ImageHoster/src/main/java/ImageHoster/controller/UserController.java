@@ -40,9 +40,78 @@ public class UserController {
     //This controller method is called when the request pattern is of type 'users/registration' and also the incoming request is of POST type
     //This method calls the business logic and after the user record is persisted in the database, directs to login page
     @RequestMapping(value = "users/registration", method = RequestMethod.POST)
-    public String registerUser(User user) {
-        userService.registerUser(user);
-        return "redirect:/users/login";
+    public String registerUser(User user, Model model) {
+    /* Added the object of Model type object to the parameters of the method registerUser(), so that the attributes
+    named as passwordTypeError and User can be added as the attributes of this Model type object and the view will
+    show users/registration page agian, if the password entered by the user does not contain atleast 1 alphabet,
+    1 number & 1 special character. */
+        String password = user.getPassword();
+        /* Fetched the password entered by the user during registration by calling getPassword() method on the object
+        of the User class */
+        String error = "Password must contain atleast 1 alphabet, 1 number & 1 special character";
+        /* Created and assigned value to the string named error which will be assigned as the value of the model
+        attribute named passwordTypeError. */
+        boolean hasAlphabet = false;
+        /* Created a new boolean variable named hasAlphabet which will be used to check if the entered password
+        contains any alphabet. */
+        boolean hasDigit = false;
+        /* Created a new boolean variable named hasDigit which will be used to check if the entered password
+        contains any digit. */
+        boolean hasSpecialCharacter = false;
+        /* Created a new boolean variable named hasSpecialCharacter which will be used to check if the entered password
+        contains any special character. */
+        for(int i = 0; i < password.length(); i++){
+        /* This for loop will be used to check if the password entered by the user contains atleast 1 alphabet,
+        1 number & 1 special character */
+            char x = password.charAt(i);
+            if(Character.isLetter(x)){
+                hasAlphabet = true;
+                /* If the character at the specific position of the password is a letter, i.e, an alphabet, then the
+                variable hasAlphabet will be set as true. */
+            }
+            if(Character.isDigit(x)){
+                hasDigit = true;
+                /* If the character at the specific position of the password is a digit, then the
+                variable hasDigit will be set as true. */
+            }
+            if(!Character.isLetter(x)&&!Character.isDigit(x)){
+                hasSpecialCharacter = true;
+                /* If the character at the specific position of the password is any character other than a digit or
+                a letter, then the variable hasSpecialCharacter will be set as true. */
+            }
+        }
+        if(hasAlphabet == true && hasDigit == true && hasSpecialCharacter == true) {
+        /* If the entered password contains atleast 1 alphabet, 1 number & 1 special character then this if block will be
+        executed and the user details will get saved in the database by calling the method userService.registerUser(). */
+            userService.registerUser(user);
+            /* The user details will get saved in the database by calling the method userService.registerUser() */
+            return "users/login";
+            /* Used the return statement return "users/login";, so that the view will show the /users/login
+            page, so that the user can login by entering the username and password. */
+        }
+        else{
+        /* If the entered password does not contain atleast 1 alphabet, 1 number & 1 special character, then this
+        else block will be executed and the view will again show users/registration page with a message: ‘Password must contain at least 1 alphabet, 1 number & 1 special character’. */
+            User user1 = new User();
+            /* Created a new object of the User class which will be assigned as the value of the model attribute named
+            User. */
+            UserProfile profile1 = new UserProfile();
+            /* Created a new object of the UserProfile class which will be assigned as the value of the object of
+            the UserProfile class present in the User class. */
+            user1.setProfile(profile1);
+            /* Set the value of the object of the UserProfile class present in the User class. */
+            model.addAttribute("passwordTypeError", error);
+            /* Added an attribute with the name passwordTypeError to the model object, which will be used to display
+            the message: Password must contain atleast 1 alphabet, 1 number & 1 special character in the users/registration page, if the password
+            does not contain atleast 1 alphabet, 1 number & 1 special character. */
+            model.addAttribute("User", user1);
+            /* Added an attribute with the name User to the model object with the value assigned as the object of the
+            User class, which will be used to store the registration details of the user. */
+            return "users/registration";
+            /* Used the return statement return "users/registration";, so that the view will show the
+            users/registration page, so that the user can register again, if the entered password by the user
+            does not contain atleast 1 alphabet, 1 number & 1 special character. */
+        }
     }
 
     //This controller method is called when the request pattern is of type 'users/login'

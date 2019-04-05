@@ -33,7 +33,9 @@
 
 
     <!--Show the password type error if the password does not contain atleast 1 alphabet, 1 number & 1 special character-->
-    <!--<div th:if="${passwordTypeError}">Password must contain atleast 1 alphabet, 1 number & 1 special character</div>-->
+    <div th:if="${passwordTypeError}">Password must contain atleast 1 alphabet, 1 number & 1 special character</div>
+    <!-- Uncommented the required code to display the message: Password must contain atleast 1 alphabet, 1 number &
+    1 special character, if the Model type object contains the string representing the password type error-->
 </form>
 
 </html>
