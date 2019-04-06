@@ -61,6 +61,8 @@ public class ImageController {
         identifying the image from the id of the image, if two or more images have the same title. */
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments", image.getComments());
+        /* Added the comments of the image in the Model type object in the code, with the key as 'comments'. */
         return "images/image";
     }
 
@@ -126,6 +128,8 @@ public class ImageController {
         the image. */
             model.addAttribute("image", image);
             model.addAttribute("tags", image.getTags());
+            model.addAttribute("comments", image.getComments());
+            /* Added the comments of the image in the Model type object in the code, with the key as 'comments'. */
             model.addAttribute("editError", error);
             /* Added an attribute with the name editError to the model object, which will be used to display the error
             message: Only the owner of the image can edit the image, if the non-owner of the image is trying to edit
@@ -217,6 +221,8 @@ public class ImageController {
         to delete the image. */
             model.addAttribute("image", image);
             model.addAttribute("tags", image.getTags());
+            model.addAttribute("comments", image.getComments());
+            /* Added the comments of the image in the Model type object in the code, with the key as 'comments'. */
             model.addAttribute("deleteError", error);
             /* Added an attribute with the name deleteError to the model object, which will be used to display the error
             message: Only the owner of the image can delete the image, if the non-owner of the image is trying to delete
